@@ -5,6 +5,9 @@
 #include <bits/stdc++.h>
 
 #define var auto
+#define int(x) convertint(x)
+#define float(x) (float)convertdouble(x)
+#define double(x) convertdouble(x)
 
 /// prints given content. Syntax : print(smth, smth2, smth3, ...);
 void print()
@@ -72,6 +75,17 @@ T dyn_input(T v, TAIL... tail)
     return v;
 }
 
+std::string operator * (std::string val, size_t s) {
+    std::string ret;
+    while(s--)
+        ret += val;
+    return ret;
+}
+
+std::string operator * (size_t s, std::string val) {
+    return val * s;
+}
+
 std::vector<int> range(int mnmax = 0, int max = 0, int step = 1)
 {
     std::vector<int> v;
@@ -86,7 +100,7 @@ std::vector<int> range(int mnmax = 0, int max = 0, int step = 1)
 }
 
 // integer to binary converter
-std::string int2bin(int num, bool standard = true)
+std::string bin(int num, bool standard = true)
 {
     std::string ret;
     bool ng = num < 0;
@@ -98,7 +112,7 @@ std::string int2bin(int num, bool standard = true)
 }
 
 // integer to hex converter
-std::string int2hex(int num, bool standard = true)
+std::string hex(int num, bool standard = true)
 {
     std::string ret;
     std::string htable = "0123456789abcdef";
@@ -108,4 +122,53 @@ std::string int2hex(int num, bool standard = true)
     std::reverse(ret.begin(),ret.end());
     ret = (ng ? "-": "") + (standard ? "0x" + ret: ret);
     return ret;
+}
+
+std::string input(std::string prompt = "")
+{
+    std::string val;
+    std::cout << prompt;
+    std::getline(std::cin, val);
+    return val;
+}
+
+int convertint(std::string num, int base = 10)
+{
+    int val = 0;
+    int sgn = 1;
+    if(base==10) {
+        if(num[0]=='-'||num[0]=='+') {
+            sgn = (num[0]=='-')?-1:1;
+            num = num.substr(1);
+        }
+        for(var x : num) {
+            if(x>'9' || x<'0') {
+                return 0;
+            }
+            val *= 10;
+            val += (x-'0');
+        }
+    } else if(base==16) {
+        // todo
+    }
+    return val*sgn;
+}
+
+double convertdouble(std::string num)
+{
+    double val;
+    int sgn = 1;
+    if(num[0]=='-'||num[0]=='+') {
+        sgn = (num[0]=='-')?-1:1;
+        num = num.substr(1);
+    }
+    std::size_t ppos = num.find(".");
+    if(ppos==-1) {
+        return int(num)*sgn;
+    } else {
+        val = int(num.substr(0, ppos));
+        std::string lp = num.substr(ppos+1);
+        val += ((double)int(lp))/(pow(10,lp.length()));
+    }
+    return val*sgn;
 }
