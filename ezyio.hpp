@@ -4,67 +4,170 @@
 #include <vector>
 #include <bits/stdc++.h>
 
-#define var auto
+using namespace std;
+
+#define let auto
 #define int(x) convertint(x)
 #define float(x) (float)convertdouble(x)
 #define double(x) convertdouble(x)
 
+std::string print_sep = " ";
+std::string print_end = "\n";
+
+class var {
+    any ival;
+    public:
+    var(){};
+    var(any v):ival(v){};
+    var(int v):ival(v){};
+    var(char v):ival(v){};
+    var(string v):ival(v){};
+    var(float v):ival(v){};
+    var(double v):ival(v){};
+    var(bool v):ival(v){};
+    var(char * v):ival(v){};
+    var(const char * v):ival(v){};
+    var(long v):ival(v){};
+    var(unsigned long v):ival(v){};
+    var(unsigned int v):ival(v){};
+
+    // general constructor
+    template<typename T>
+    var(T v):ival(v){};
+
+    var& operator=(var& v){ival = v.ival; return *this;}
+    var& operator=(any v){ival = v; return *this;};
+
+    // general get value
+    template<typename T>
+    T val()
+    {
+        return any_cast<T>(ival);
+    }
+
+    // get value representation in string
+    string val()
+    {
+        stringstream s;
+        s << (*this);
+        return s.str();
+    }
+
+    // typecheck
+    template<typename T>
+    bool is_type(T)
+    {
+        return ival.type()==typeid(T);
+    }
+
+    // typename
+    const char * type_name() {
+        return ival.type().name();
+    }
+    
+    // operators
+
+    friend ostream& operator<<(ostream& s, const var& l)
+    {
+        stringstream os;
+        if(l.ival.type()==typeid(int)) { os << any_cast<int>(l.ival); }
+        else if(l.ival.type()==typeid(unsigned int)) { os << any_cast<unsigned int>(l.ival); } 
+        else if(l.ival.type()==typeid(bool)) { os << (any_cast<bool>(l.ival)?"true":"false"); }
+        else if(l.ival.type()==typeid(char)) { os << any_cast<char>(l.ival); }
+        else if(l.ival.type()==typeid(string)) { os << any_cast<string>(l.ival); }
+        else if(l.ival.type()==typeid(char *)) { os << any_cast<char *>(l.ival); }
+        else if(l.ival.type()==typeid(const char *)) {os << any_cast<const char*>(l.ival); }
+        else if(l.ival.type()==typeid(long)) { os << any_cast<long>(l.ival); }
+        else if(l.ival.type()==typeid(unsigned long)) { os << any_cast<unsigned long>(l.ival); }
+        else if(l.ival.type()==typeid(float)) { os << any_cast<float>(l.ival); }
+        else if(l.ival.type()==typeid(double)) { os << any_cast<double>(l.ival); }
+        else {
+            throw invalid_argument(
+                "Type is not supported for operator `<<` , use `stream << var::val<type>()` instead."
+            );
+        }
+        s << os.str();
+        return s;
+    }
+};
+
 /// prints given content. Syntax : print(smth, smth2, smth3, ...);
 void print()
 {
-    std::cout << std::endl;
+    cout << print_end;
 }
+
 template <typename T, typename... TAIL>
 void print(const T &t, TAIL... tail)
 {
-    std::cout << t << " ";
+    cout << t << print_sep;
     print(tail...);
 }
-void print_wn(void){return;}
+
+void print(var& v) {
+    cout << v << print_sep << print_end;
+}
+
 template <typename T, typename... TAIL>
-void print_wn(const T &t, TAIL... tail)
+void print(const var& v, TAIL... tail)
 {
-    std::cout << t << " ";
-    print_wn(tail...);
+    cout << v << print_sep;
+    print(tail...);
+}
+
+template <typename T>
+string str(T v)
+{
+    stringstream s;
+    s << v;
+    return s.str();
+}
+
+void print_r(void){return;}
+template <typename T, typename... TAIL>
+void print_r(const T &t, TAIL... tail)
+{
+    cout << t;
+    print_r(tail...);
 }
 
 template <typename T, size_t size>
-void print_arr(const T(&t)[size], std::string sep = ", ", std::string end = "\n", bool braces = true)
+void print_arr(const T(&t)[size], string sep = ", ", string end = "\n", bool braces = true)
 {
-    std::cout << (braces ? "{" : "");
+    cout << (braces ? "{" : "");
     bool done = false;
     for (T v: t) {
-        if (std::is_same<T,std::string>::value || std::is_same<T,char *>::value || std::is_same<T,const char*>::value)
-            std::cout << (done?sep:"") << '"' << v << '"';
+        if (is_same<T,string>::value || is_same<T,char *>::value || is_same<T,const char*>::value)
+            cout << (done?sep:"") << '"' << v << '"';
         else
-            std::cout << (done?sep:"") << v;
+            cout << (done?sep:"") << v;
         done = true;
     }
-    std::cout << (braces ? "}" : "") << end;
+    cout << (braces ? "}" : "") << end;
 }
 
 template <typename T>
-void print_arr(std::vector<T> t, std::string sep = ", ", std::string end = "\n", bool braces = true)
+void print_arr(vector<T> t, string sep = ", ", string end = "\n", bool braces = true)
 {
-    std::cout << (braces ? "{" : "");
+    cout << (braces ? "{" : "");
     bool done = false;
     for (T v: t) {
-        if (std::is_same<T,std::string>::value || std::is_same<T,char *>::value || std::is_same<T,const char*>::value)
-            std::cout << (done?sep:"") << '"' << v << '"';
+        if (is_same<T,string>::value || is_same<T,char *>::value || is_same<T,const char*>::value)
+            cout << (done?sep:"") << '"' << v << '"';
         else
-            std::cout << (done?sep:"") << v;
+            cout << (done?sep:"") << v;
         done = true;
     }
-    std::cout << (braces ? "}" : "") << end;
+    cout << (braces ? "}" : "") << end;
 }
 
-/// inputs to a variable, Syntax : input(var1, var2, var3, ...);
+/// inputs to a letiable, Syntax : input(let1, let2, let3, ...);
 template <typename T>
-T input(std::string prompt = "")
+T input(string prompt = "")
 {
     T v;
-    std::cout << prompt;
-    std::cin >> v;
+    cout << prompt;
+    cin >> v;
     return v;
 }
 
@@ -75,20 +178,20 @@ T dyn_input(T v, TAIL... tail)
     return v;
 }
 
-std::string operator * (std::string val, size_t s) {
-    std::string ret;
+string operator * (string val, size_t s) {
+    string ret;
     while(s--)
         ret += val;
     return ret;
 }
 
-std::string operator * (size_t s, std::string val) {
+string operator * (size_t s, string val) {
     return val * s;
 }
 
-std::vector<int> range(int mnmax = 0, int max = 0, int step = 1)
+vector<int> range(int mnmax = 0, int max = 0, int step = 1)
 {
-    std::vector<int> v;
+    vector<int> v;
     if ( step > 0 ) {
         for(int i = (max?mnmax:0); i < (max?max:mnmax); i+=step)
             v.push_back(i);
@@ -100,39 +203,50 @@ std::vector<int> range(int mnmax = 0, int max = 0, int step = 1)
 }
 
 // integer to binary converter
-std::string bin(int num, bool standard = true)
+string bin(int num, bool standard = true)
 {
-    std::string ret;
+    string ret;
     bool ng = num < 0;
     num = abs(num);
-    while ( num >>= 1 ) ret += '0'+num%2;
-    std::reverse(ret.begin(), ret.end());
+    do { ret += '0'+num%2; } while ( num >>= 1 );
+    reverse(ret.begin(), ret.end());
     ret = (ng ? "-": "") + (standard ? "0b" + ret: ret);
     return ret;
 }
 
 // integer to hex converter
-std::string hex(int num, bool standard = true)
+string hex(int num, bool standard = true)
 {
-    std::string ret;
-    std::string htable = "0123456789abcdef";
+    string ret;
+    string htable = "0123456789abcdef";
     bool ng = num < 0;
     num = abs(num);
     do { ret += htable[num%16]; } while ( num >>=4 );
-    std::reverse(ret.begin(),ret.end());
+    reverse(ret.begin(),ret.end());
     ret = (ng ? "-": "") + (standard ? "0x" + ret: ret);
     return ret;
 }
 
-std::string input(std::string prompt = "")
+string oct(int num, bool standard = true)
 {
-    std::string val;
-    std::cout << prompt;
-    std::getline(std::cin, val);
+    string ret;
+    bool ng = num < 0;
+    num = abs(num);
+    do { ret += '0'+(num%8); } while ( num >>=3 );
+    reverse(ret.begin(),ret.end());
+    ret = (ng ? "-": "") + (standard ? "0o" + ret: ret);
+    return ret;
+}
+
+string input(string prompt = "")
+{
+    string val;
+    cout << prompt;
+    getline(cin, val);
     return val;
 }
 
-int convertint(std::string num, int base = 10)
+int convertint(string num, int base = 10)
 {
     int val = 0;
     int sgn = 1;
@@ -141,7 +255,7 @@ int convertint(std::string num, int base = 10)
             sgn = (num[0]=='-')?-1:1;
             num = num.substr(1);
         }
-        for(var x : num) {
+        for(let x : num) {
             if(x>'9' || x<'0') {
                 return 0;
             }
@@ -154,7 +268,12 @@ int convertint(std::string num, int base = 10)
     return val*sgn;
 }
 
-double convertdouble(std::string num)
+int convertint(double val)
+{
+    return (int)val;
+}
+
+double convertdouble(string num)
 {
     double val;
     int sgn = 1;
@@ -162,12 +281,12 @@ double convertdouble(std::string num)
         sgn = (num[0]=='-')?-1:1;
         num = num.substr(1);
     }
-    std::size_t ppos = num.find(".");
+    size_t ppos = num.find(".");
     if(ppos==-1) {
         return int(num)*sgn;
     } else {
         val = int(num.substr(0, ppos));
-        std::string lp = num.substr(ppos+1);
+        string lp = num.substr(ppos+1);
         val += ((double)int(lp))/(pow(10,lp.length()));
     }
     return val*sgn;
