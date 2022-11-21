@@ -10,6 +10,8 @@ using namespace std;
 #define int(x) convertint(x)
 #define float(x) (float)convertdouble(x)
 #define double(x) convertdouble(x)
+#define main() int main()
+#define func var
 
 std::string print_sep = " ";
 std::string print_end = "\n";
@@ -38,6 +40,121 @@ class var {
     var& operator=(var& v){ival = v.ival; return *this;}
     var& operator=(any v){ival = v; return *this;};
 
+    // ------------------------- add operators -------------------------
+    
+    template<typename T>
+    T operator+(T vl) {
+        return val<T>() + vl;
+    }
+
+    std::string operator+(std::string vl) {
+        return vl + val();
+    }
+
+    std::string operator+(const char * vl) {
+        return val() + vl;
+    }
+
+    template<typename T>
+    var& operator+=(T vl) {
+        ival = val<T>() + vl;
+        return *this;
+    }
+
+    var& operator+=(std::string vl) {
+        ival = val() + vl;
+        return *this;
+    }
+
+    var& operator+=(const char * vl) {
+        ival = val() + vl;
+        return *this;
+    }
+
+    // ------------------------- subtract operators -------------------------
+
+    template<typename T>
+    T operator-(T vl) {
+        return val<T>() - vl;
+    }
+
+    template<typename T>
+    var& operator-=(T vl) {
+        ival = val<T>() - vl;
+        return *this;
+    }
+
+    // ------------------------- multiply operators -------------------------
+
+    template<typename T>
+    T operator*(T vl) {
+        return val<T>() * vl;
+    }
+
+    template<typename T>
+    var& operator*=(T vl) {
+        ival = val<T>()*vl;
+        return *this;
+    }
+
+    // ------------------------- divide operators -------------------------
+
+    template<typename T>
+    T operator/(T vl) {
+        return val<T>() / vl;
+    }
+
+    template<typename T>
+    var& operator/=(T vl) {
+        ival = val<T>() / vl;
+        return *this;
+    }
+
+    // ------------------------- boolean operators -------------------------
+
+    template<typename T>
+    bool operator==(T vl) {
+        return val<T>() == vl;
+    }
+
+    bool operator==(var& v) {
+        return v.val() == val() && is_same_type(v);
+    }
+
+    bool operator!=(var& v) {
+        return !(*this == v);
+    }
+
+    template<typename T>
+    bool operator<(T vl) {
+        return val<T>() < vl;
+    }
+
+    template<typename T>
+    bool is_less_than(var& b) {
+        return val<T>() < b.val<T>();
+    }
+
+    template<typename T>
+    bool is_less_than_as(var& b, T v) {
+        return val<T>() < b.val<T>();
+    }
+
+    template<typename T>
+    bool operator>(T vl) {
+        return val<T> > vl;
+    }
+
+    template<typename T>
+    bool is_greater_than(var& b) {
+        return val<T>() > b.val<T>();
+    }
+
+    template<typename T>
+    bool is_greater_than_as(var& b, T v) {
+        return val<T>() > b.val<T>();
+    }
+
     // general get value
     template<typename T>
     T val()
@@ -53,11 +170,30 @@ class var {
         return s.str();
     }
 
+    // get value as another type
+    template<typename T>
+    T val_as(T v)
+    {
+        return any_cast<T>(ival);
+    }
+
     // typecheck
     template<typename T>
-    bool is_type(T)
+    bool is_type()
     {
         return ival.type()==typeid(T);
+    }
+
+    // typecheck
+    template<typename T>
+    bool is_same_type(T v)
+    {
+        return ival.type()==typeid(T);
+    }
+
+    bool is_same_type(var& v)
+    {
+        return ival.type()==v.ival.type();
     }
 
     // typename
