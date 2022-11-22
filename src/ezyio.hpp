@@ -11,6 +11,7 @@ using namespace std;
 #define float(x) (float)convertdouble(x)
 #define double(x) convertdouble(x)
 #define main() int main()
+#define foreach(x, y, z) do { for (let y : x) { z; } } while(0)
 #define func var
 
 std::string print_sep = " ";
@@ -44,6 +45,9 @@ class var {
     
     template<typename T>
     T operator+(T vl) {
+        if (! is_type<T>()) {
+            throw runtime_error("error : use of `+` operator between different variable types.");
+        }
         return val<T>() + vl;
     }
 
@@ -57,17 +61,7 @@ class var {
 
     template<typename T>
     var& operator+=(T vl) {
-        ival = val<T>() + vl;
-        return *this;
-    }
-
-    var& operator+=(std::string vl) {
-        ival = val() + vl;
-        return *this;
-    }
-
-    var& operator+=(const char * vl) {
-        ival = val() + vl;
+        ival = (*this) + vl;;
         return *this;
     }
 
@@ -75,12 +69,15 @@ class var {
 
     template<typename T>
     T operator-(T vl) {
+        if (! is_type<T>()) {
+            throw runtime_error("error : use of `-` operator between different variable types.");
+        }
         return val<T>() - vl;
     }
 
     template<typename T>
     var& operator-=(T vl) {
-        ival = val<T>() - vl;
+        ival = (*this) - vl;
         return *this;
     }
 
@@ -88,12 +85,15 @@ class var {
 
     template<typename T>
     T operator*(T vl) {
+        if (! is_type<T>()) {
+            throw runtime_error("error : use of `*` operator between different variable types.");
+        }
         return val<T>() * vl;
     }
 
     template<typename T>
     var& operator*=(T vl) {
-        ival = val<T>()*vl;
+        ival = (*this) * vl;
         return *this;
     }
 
@@ -101,12 +101,15 @@ class var {
 
     template<typename T>
     T operator/(T vl) {
+        if (! is_type<T>()) {
+            throw runtime_error("error : use of `/` operator between different variable types.");
+        }
         return val<T>() / vl;
     }
 
     template<typename T>
     var& operator/=(T vl) {
-        ival = val<T>() / vl;
+        ival = (*this) / vl;
         return *this;
     }
 
@@ -114,6 +117,9 @@ class var {
 
     template<typename T>
     bool operator==(T vl) {
+        if (! is_type<T>() ) {
+            return false;
+        }
         return val<T>() == vl;
     }
 
@@ -126,8 +132,47 @@ class var {
     }
 
     template<typename T>
+    bool operator!=(T vl) {
+        return !(*this == vl);
+    }
+
+    template<typename T>
     bool operator<(T vl) {
+        if (! is_type<T>()) {
+            throw runtime_error("error : use of `<` operator between different variable types.");
+        }
         return val<T>() < vl;
+    }
+
+    bool operator<(var& b) {
+        if (! is_same_type(b)) {
+            throw runtime_error("error : use of `<` operator between different variable types.");
+        }
+        if (is_type<int>()) {
+            return val<int>() < b.val<int>();
+        } else if (is_type<bool>()) {
+            return val<bool>() < b.val<bool>();
+        } else if (is_type<unsigned int>()) {
+            return val<unsigned int>() < b.val<unsigned int>();
+        } else if (is_type<short>()) {
+            return val<short>() < b.val<short>();
+        } else if (is_type<unsigned short>()) {
+            return val<unsigned short>() < b.val<unsigned short>();
+        } else if (is_type<char *>() || is_type<const char*>() || is_type<string>()) {
+            return val().length() < b.val().length();
+        } else if (is_type<char>()) {
+            return val<char>() < b.val<char>();
+        } else if (is_type<double>()) {
+            return val<double>() < b.val<double>();
+        } else if (is_type<float>()) {
+            return val<float>() < b.val<float>();
+        } else if (is_type<long>()) {
+            return val<long>() < b.val<long>();
+        } else if (is_type<unsigned long>()) {
+            return val<unsigned long>() < b.val<unsigned long>();
+        } else {
+            throw runtime_error("error: use of `<` operator between unknown / custom variable types.");
+        }
     }
 
     template<typename T>
@@ -141,8 +186,79 @@ class var {
     }
 
     template<typename T>
+    bool _not() {
+        return !val<T>();
+    }
+
+    template<typename T>
+    bool not_as(T v) {
+        return !val<T>();
+    }
+
+    bool operator!() {
+        if (is_type<int>()) {
+            return !val<int>();
+        } else if (is_type<unsigned int>()) {
+            return !val<unsigned int>();
+        } else if (is_type<bool>()) {
+            return !val<bool>();
+        } else if (is_type<long>()) {
+            return !val<long>();
+        } else if (is_type<unsigned long>()) {
+            return !val<unsigned long>();
+        } else if (is_type<char>()) {
+            return !val<char>();
+        } else if (is_type<char *>() || is_type<const char*>() || is_type<string>()) {
+            return val() == "";
+        } else if (is_type<float>()) {
+            return !val<float>();
+        } else if (is_type<double>()) {
+            return !val<double>();
+        } else if (is_type<short>()) {
+            return !val<short>();
+        } else if (is_type<unsigned short>()) {
+            return !val<unsigned short>();
+        }
+        throw runtime_error("error: use of `!` operator on unknown / custom variable type.");
+    }
+
+    template<typename T>
     bool operator>(T vl) {
+        if (! is_type<T>()) {
+            throw runtime_error("error : use of `>` operator between different variable types.");
+        }
         return val<T> > vl;
+    }
+
+    bool operator>(var& b) {
+        if (! is_same_type(b)) {
+            throw runtime_error("error : use of `>` operator between different variable types.");
+        }
+        if (is_type<int>()) {
+            return val<int>() > b.val<int>();
+        } else if (is_type<bool>()) {
+            return val<bool>() > b.val<bool>();
+        } else if (is_type<unsigned int>()) {
+            return val<unsigned int>() > b.val<unsigned int>();
+        } else if (is_type<short>()) {
+            return val<short>() > b.val<short>();
+        } else if (is_type<unsigned short>()) {
+            return val<unsigned short>() > b.val<unsigned short>();
+        } else if (is_type<char *>() || is_type<const char*>() || is_type<string>()) {
+            return val().length() > b.val().length();
+        } else if (is_type<char>()) {
+            return val<char>() > b.val<char>();
+        } else if (is_type<double>()) {
+            return val<double>() > b.val<double>();
+        } else if (is_type<float>()) {
+            return val<float>() > b.val<float>();
+        } else if (is_type<long>()) {
+            return val<long>() > b.val<long>();
+        } else if (is_type<unsigned long>()) {
+            return val<unsigned long>() > b.val<unsigned long>();
+        } else {
+            throw runtime_error("error: use of `>` operator between unknown / custom variable types.");
+        }
     }
 
     template<typename T>
@@ -161,6 +277,8 @@ class var {
     {
         return any_cast<T>(ival);
     }
+
+    // ---------------- operator end ------------------
 
     // get value representation in string
     string val()
@@ -203,29 +321,59 @@ class var {
     
     // operators
 
-    friend ostream& operator<<(ostream& s, const var& l)
+    friend ostream& operator<<(ostream& os, var& l)
     {
-        stringstream os;
-        if(l.ival.type()==typeid(int)) { os << any_cast<int>(l.ival); }
-        else if(l.ival.type()==typeid(unsigned int)) { os << any_cast<unsigned int>(l.ival); } 
-        else if(l.ival.type()==typeid(bool)) { os << (any_cast<bool>(l.ival)?"true":"false"); }
-        else if(l.ival.type()==typeid(char)) { os << any_cast<char>(l.ival); }
-        else if(l.ival.type()==typeid(string)) { os << any_cast<string>(l.ival); }
-        else if(l.ival.type()==typeid(char *)) { os << any_cast<char *>(l.ival); }
-        else if(l.ival.type()==typeid(const char *)) {os << any_cast<const char*>(l.ival); }
-        else if(l.ival.type()==typeid(long)) { os << any_cast<long>(l.ival); }
-        else if(l.ival.type()==typeid(unsigned long)) { os << any_cast<unsigned long>(l.ival); }
-        else if(l.ival.type()==typeid(float)) { os << any_cast<float>(l.ival); }
-        else if(l.ival.type()==typeid(double)) { os << any_cast<double>(l.ival); }
+        if( l.is_type<int>()) { os << l.val<int>(); }
+        else if( l.is_type<unsigned int>() ) { os << l.val<unsigned int>(); } 
+        else if( l.is_type<bool>()) { os << (l.val<bool>()?"true":"false"); }
+        else if( l.is_type<char>() ) { os << l.val<char>(); }
+        else if( l.is_type<string>() ) { os << l.val<string>(); }
+        else if( l.is_type<char *>() ) { os << l.val<char *>(); }
+        else if( l.is_type<const char *>() ) {os << l.val<const char*>(); }
+        else if( l.is_type<long>() ) { os << l.val<long>(); }
+        else if( l.is_type<unsigned long>() ) { os << l.val<unsigned long>(); }
+        else if( l.is_type<float>() ) { os << l.val<float>(); }
+        else if( l.is_type<double>() ) { os << l.val<double>(); }
+        else if( l.is_type<short>() ) { os << l.val<short>(); }
+        else if( l.is_type<unsigned short>() ) { os << l.val<unsigned short>(); }
         else {
             throw invalid_argument(
                 "Type is not supported for operator `<<` , use `stream << var::val<type>()` instead."
             );
         }
-        s << os.str();
-        return s;
+        return os;
     }
 };
+
+template<typename T>
+T operator-(T v, var& vl)
+{
+    return -(vl-v);
+}
+
+template<typename T>
+T operator+(T v, var& vl)
+{
+    return vl+v;
+}
+
+std::string operator+(std::string v, var& vl)
+{
+    return v + vl.val();
+}
+
+std::string operator+(const char * v, var& vl)
+{
+    return v + vl.val();
+}
+
+void print_wn() {}
+template<typename T, typename... TAIL>
+void print_wn(const T &t, TAIL... tail)
+{
+    cout << t << print_sep;
+    print_wn(tail...);
+}
 
 /// prints given content. Syntax : print(smth, smth2, smth3, ...);
 void print()
@@ -240,15 +388,16 @@ void print(const T &t, TAIL... tail)
     print(tail...);
 }
 
-void print(var& v) {
-    cout << v << print_sep << print_end;
-}
-
-template <typename T, typename... TAIL>
-void print(const var& v, TAIL... tail)
+template <typename... TAIL>
+void print(var &v, TAIL... tail)
 {
     cout << v << print_sep;
     print(tail...);
+}
+
+void print(var &v) {
+    cout << v << print_sep;
+    print();
 }
 
 template <typename T>
@@ -382,15 +531,36 @@ string input(string prompt = "")
     return val;
 }
 
+bool startswith(std::string base, std::string to_test) {
+    return base.find(to_test) == 0;
+}
+
+bool endswith(std::string base, std::string to_test) {
+    return (base.find(to_test) + to_test.length())==base.length();
+}
+
 int convertint(string num, int base = 10)
 {
     int val = 0;
     int sgn = 1;
-    if(base==10) {
-        if(num[0]=='-'||num[0]=='+') {
-            sgn = (num[0]=='-')?-1:1;
-            num = num.substr(1);
-        }
+    if(num[0]=='-'||num[0]=='+') {
+        sgn = (num[0]=='-')?-1:1;
+        num = num.substr(1);
+    }
+    startdecode:
+    if ( startswith(num, "0x") ) {
+        num = num.substr(2);
+        base = 16;
+        goto startdecode;
+    } else if ( startswith(num, "0b") ) {
+        num = num.substr(2);
+        base = 2;
+        goto startdecode;
+    } else if ( startswith(num, "0o") ) {
+        num = num.substr(2);
+        base = 8;
+        goto startdecode;
+    } else if(base==10) {
         for(let x : num) {
             if(x>'9' || x<'0') {
                 return 0;
@@ -398,10 +568,10 @@ int convertint(string num, int base = 10)
             val *= 10;
             val += (x-'0');
         }
-    } else if(base==16) {
-        // todo
+        return val * sgn;
+    } else{
+        return (int)stoul(num, nullptr, base) * sgn;
     }
-    return val*sgn;
 }
 
 int convertint(double val)
