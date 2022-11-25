@@ -1,8 +1,10 @@
-#include "ezyio.hpp"
+#include "ezycpp.hpp"
 
 main()
 {
-    foreach(range(10), x, {
-        print(x);
-    });
+    var b = "Hello";
+    var c = " World!";
+    b += c;
+    print(b);
+    die();
 }
